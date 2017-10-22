@@ -15,10 +15,7 @@ let dumpDir = "./dumps/" |> FullName
 
 let script = "./vendor/couchdb-backup.sh" |> FullName
 
-// -------------------------------------------
-// Build steps
-// -------------------------------------------
-
+// From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let run' timeout cmd args dir =
     if execProcess (fun info ->
         info.FileName <- cmd
@@ -28,8 +25,10 @@ let run' timeout cmd args dir =
     ) timeout |> not then
         failwithf "Error while running '%s' with args: %s" cmd args
 
+// From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let run = run' System.TimeSpan.MaxValue
 
+// From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let platformTool tool winTool =
     if isWindows then failwith "This tool is not supported in Windows because executables cannot access bash.exe. You must run this script from WSL instead."
 
@@ -47,7 +46,7 @@ let listDatabases () = async {
     return deserialize<string list> json
 }
 
-let bash = platformTool "bash" "C:\\Windows\\system32\\bash.exe"
+let bash = platformTool "bash" "bash.exe"
 
 Target "Backup" (fun _ ->
     let databases = listDatabases () |> Async.RunSynchronously
