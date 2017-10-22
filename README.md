@@ -5,7 +5,11 @@ An F# script that wraps [couchdb-backup.sh](https://github.com/danielebailo/couc
 
 # Prerequisites
 
-You must [install FSharp](http://fsharp.org/). If you're on Windows you must also enable the Windows Subsystem for Linux and run the script from bash -- it won't work from CMD or PowerShell.
+1. Install Mono: `sudo apt install mono-complete`
+2. Make paket.bootstrapper.exe executable: `sudo chmod u+x .paket/paket.bootstrapper.exe`
+3. Bootstrap paket: `./.paket/paket.bootstrapper.exe`
+
+If you're on Windows you must also enable the Windows Subsystem for Linux and run the script from bash -- it won't work from CMD or PowerShell.
 
 # Usage
 
