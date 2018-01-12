@@ -11,7 +11,7 @@ An F# script that wraps [couchdb-backup.sh](https://github.com/danielebailo/couc
 4. Make paket.bootstrapper.exe executable: `sudo chmod u+x .paket/paket.bootstrapper.exe`
 5. Bootstrap paket: `mono .paket/paket.bootstrapper.exe`
 6. If you're using the upload feature:
-    1. Follow these instructions to install tarsnap.
+    1. [Follow these instructions to install tarsnap](https://www.tarsnap.com/pkg-deb.html).
     2. Copy your tarsnap key (preferably a write-only key) to the target machine.
     3. Add `export TARSNAP_KEYFILE="/path/to/tarsnap.key"` to your `.bashrc`
     4. Symlink `cron/backup-couchdb` to the cron folder: `ln -s "$PWD/cron/backup-couchdb" "/etc/cron.d/backup-couchdb"`
