@@ -3,17 +3,24 @@ An F# script that wraps [couchdb-backup.sh](https://github.com/danielebailo/couc
 
 (**Windows users: This script must be run from WSL.**)
 
-# Prerequisites
+# Setup instructions
 
 1. Install Mono: `sudo apt install mono-complete`
-2. Make paket.bootstrapper.exe executable: `sudo chmod u+x .paket/paket.bootstrapper.exe`
-3. Bootstrap paket: `./.paket/paket.bootstrapper.exe`
+2. **Clone this repository to /etc/fs-couchdump**: `git clone https://github.com/nozzlegear/fs-couchdump /etc/fs-couchdmp`
+3. Make `run.sh` executable: `sudo chmod u+x run.sh`
+4. Make paket.bootstrapper.exe executable: `sudo chmod u+x .paket/paket.bootstrapper.exe`
+5. Bootstrap paket: `mono .paket/paket.bootstrapper.exe`
+6. If you're using the upload feature:
+    1. Follow these instructions to install tarsnap.
+    2. Copy your tarsnap key (preferably a write-only key) to the target machine.
+    3. Add `export TARSNAP_KEYFILE="/path/to/tarsnap.key"` to your `.bashrc`
+    4. Symlink `cron/backup-couchdb` to the cron folder: `ln -s "$PWD/cron/backup-couchdb" "/etc/cron.d/backup-couchdb"`
 
 If you're on Windows you must also enable the Windows Subsystem for Linux and run the script from bash -- it won't work from CMD or PowerShell.
 
 # Usage
 
-Call the `run.sh` script from bash. You can specify one of two commands: `list` or `backup`. The default command is `list`. If you're running this on Windows through WSL, you *may* also need to use `sudo` if you get permission errors, e.g. `sudo ./run.sh command`.
+Call the `run.sh` script from bash. You can specify one of three commands: `list`, `backup` or `upload`. The default command is `list`. If you're running this on Windows through WSL, you *may* also need to use `sudo` if you get permission errors, e.g. `sudo ./run.sh command`.
 
 ## list (default command)
 
