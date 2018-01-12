@@ -1,0 +1,6 @@
+SHELL=/bin/sh
+0 10 * * * root fsharpi /etc/fs-couchdump/run.fsx upload >> /var/log/backup-couchdb.log 2>&1
+
+# Place this file under /etc/cron.d, and place run.fsx under /etc/fs-couchdump. Logs will be available at /var/log/backup-couchdb.log.
+# Be sure to set the TARSNAP_KEYFILE environment variable to the location of your Tarsnap key. For more secure usage, try creating a
+# write-only tarsnap key.
