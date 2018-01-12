@@ -1,7 +1,3 @@
-// --------------------------------------------------------------------------------------
-// FAKE build script
-// --------------------------------------------------------------------------------------
-
 #r @"packages/FAKE/tools/FakeLib.dll"
 #r @"packages/Newtonsoft.Json/lib/net45/Newtonsoft.Json.dll"
 #r @"packages/Microsoft.FSharpLu.Json/lib/net452/Microsoft.FSharpLu.Json.dll"
@@ -10,6 +6,7 @@ open Fake
 open System
 open System.IO
 open Microsoft.FSharpLu.Json.Compact
+open System.Net
 
 let dumpDir = "./dumps/" |> FullName
 
@@ -46,20 +43,20 @@ let listDatabases () = async {
     return deserialize<string list> json
 }
 
+let date = System.DateTime.Now.ToString("yyyy-MM-dd")
+let zipFilename = dumpDir </> sprintf "%s.zip" date |> FullName
+let outputFolder = dumpDir </> date |> FullName
 let bash = platformTool "bash" "bash.exe"
 
 Target "Backup" (fun _ ->
     let databases = listDatabases () |> Async.RunSynchronously
-    let date = System.DateTime.Now.ToString("yyyy-MM-dd")
-    let folder = dumpDir </> date |> FullName
-    let zipFilename = dumpDir </> sprintf "%s.zip" date |> FullName
 
     // Create the folder
-    Directory.CreateDirectory folder |> ignore
+    Directory.CreateDirectory outputFolder |> ignore
 
     // Backup each database
     databases |> Seq.iter(fun db ->
-        let filename = folder </> db + ".json" |> FullName
+        let filename = outputFolder </> db + ".json" |> FullName
 
         // Overwrite the file if it already exists
         if File.Exists filename then File.Delete filename
@@ -73,8 +70,8 @@ Target "Backup" (fun _ ->
     if File.Exists zipFilename then File.Delete zipFilename
 
     // Zip up the files
-    !! (sprintf "%s/*.json" folder)
-    |> Zip folder zipFilename
+    !! (sprintf "%s/*.json" outputFolder)
+    |> Zip outputFolder zipFilename
 )
 
 Target "List" (fun _ ->
@@ -84,8 +81,30 @@ Target "List" (fun _ ->
 
     databases |> Seq.iter (printfn "%s"))
 
+let tarsnap = platformTool "tarsnap" "tarsnap.exe"
+
+Target "Upload" (fun _ ->
+    let keyfile =
+        match System.Environment.GetEnvironmentVariable "TARSNAP_KEYFILE" with
+        | ""
+        | null -> nullArg "Environment variable TARSNAP_KEYFILE was not found." |> raise
+        | s -> s
+
+    let backupName =
+        DateTime.UtcNow.ToString "o"
+        |> sprintf "%s-%s" System.Environment.MachineName
+
+    printfn "Archiving backup folder %s as backup %s. Tarsnap uses diffing to cache files that have already been uploaded, so upload size won't matter." outputFolder backupName
+
+    let args = sprintf "-c --keyfile %s -f %s %s" keyfile backupName outputFolder
+
+    // Run tarsnap
+    run tarsnap args __SOURCE_DIRECTORY__
+)
+
 // Defines the order and dependencies of targets.
 "List"
   ==> "Backup"
+  ==> "Upload"
 
 RunTargetOrDefault "List"
