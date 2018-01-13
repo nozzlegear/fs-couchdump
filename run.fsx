@@ -33,8 +33,6 @@ let platformTool tool winTool =
 
 let bash = platformTool "bash" "bash.exe"
 
-let tarsnap = platformTool "tarsnap" "tarsnap.exe"
-
 // From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let run' (timeout: TimeSpan) cmd args dir =
     let configureProcess (info: Diagnostics.ProcessStartInfo) =
@@ -117,6 +115,8 @@ let backup () =
 let upload () =
     backup()
     log "Running upload commmand."
+
+    let tarsnap = platformTool "tarsnap" "tarsnap.exe"
 
     let backupName = sprintf "%s-%s" System.Environment.MachineName outputDate
 
