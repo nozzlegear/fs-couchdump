@@ -18,6 +18,8 @@ An F# script that wraps [couchdb-backup.sh](https://github.com/danielebailo/couc
 
 If you're on Windows you must also enable the Windows Subsystem for Linux and run the script from bash -- it won't work from CMD or PowerShell.
 
+**Note for my own sanity**: The cron job will run as root, so make sure the root's `.bashrc` (at `/root/.bashrc`) has access to `TARSNAP_KEYFILE`, whether it exports itself or it sources a different env file. **Additionally** when you try to manually run the command you'll need to do it as sudo, but you have to make sure sudo passes your session's environment variables: `sudo -E ./run.sh`.
+
 # Usage
 
 Call the `run.sh` script from bash. You can specify one of three commands: `list`, `backup` or `upload`. The default command is `list`. If you're running this on Windows through WSL, you *may* also need to use `sudo` if you get permission errors, e.g. `sudo ./run.sh command`.
