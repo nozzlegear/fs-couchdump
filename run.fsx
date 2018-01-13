@@ -61,8 +61,10 @@ Target "Backup" (fun _ ->
         // Overwrite the file if it already exists
         if File.Exists filename then File.Delete filename
 
-        // -b runs the script in backup mode. -r runs it in restore mode.
-        let args = sprintf "%s -b -H 127.0.0.1 -d \"%s\" -f \"%s\"" script db filename
+        // -b runs the script in backup mode.
+        // -r runs it in restore mode.
+        // -q runs it in quiet mode except for errors and warnings
+        let args = sprintf "%s -b -q -H 127.0.0.1 -d \"%s\" -f \"%s\"" script db filename
 
         run bash args __SOURCE_DIRECTORY__ )
 
