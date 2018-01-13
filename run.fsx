@@ -15,6 +15,26 @@ let dumpDir = "./dumps/" |> FullName
 
 let script = "./vendor/couchdb-backup.sh" |> FullName
 
+let outputDate = now()
+
+let zipFilename = dumpDir </> sprintf "%s.zip" outputDate |> FullName
+
+let outputFolder = dumpDir </> outputDate |> FullName
+
+// From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
+let platformTool tool winTool =
+    if isWindows then failwith "This tool is not supported in Windows because executables cannot access bash.exe. You must run this script from WSL instead."
+
+    let tool = if isUnix then tool else winTool
+
+    tool
+    |> ProcessHelper.tryFindFileOnPath
+    |> function Some t -> t | _ -> failwithf "%s not found" tool
+
+let bash = platformTool "bash" "bash.exe"
+
+let tarsnap = platformTool "tarsnap" "tarsnap.exe"
+
 // From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let run' (timeout: TimeSpan) cmd args dir =
     let configureProcess (info: Diagnostics.ProcessStartInfo) =
@@ -32,16 +52,6 @@ let run' (timeout: TimeSpan) cmd args dir =
 // From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
 let run = run' System.TimeSpan.MaxValue
 
-// From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
-let platformTool tool winTool =
-    if isWindows then failwith "This tool is not supported in Windows because executables cannot access bash.exe. You must run this script from WSL instead."
-
-    let tool = if isUnix then tool else winTool
-
-    tool
-    |> ProcessHelper.tryFindFileOnPath
-    |> function Some t -> t | _ -> failwithf "%s not found" tool
-
 let listDatabases () = async {
     use client = new System.Net.WebClient ()
     let address = Uri "http://localhost:5984/_all_dbs"
@@ -51,12 +61,6 @@ let listDatabases () = async {
         deserialize<string list> json
         |> List.filter (fun db -> db.IndexOf "_" <> 0) // Filter out global databases which start with _
 }
-
-let outputDate = now()
-let zipFilename = dumpDir </> sprintf "%s.zip" outputDate |> FullName
-let outputFolder = dumpDir </> outputDate |> FullName
-let bash = platformTool "bash" "bash.exe"
-let tarsnap = platformTool "tarsnap" "tarsnap.exe"
 
 let list () =
     let databases = listDatabases () |> Async.RunSynchronously
@@ -77,7 +81,7 @@ let backup () =
     if databases.IsEmpty then
         log "Found no databases to backup."
     else
-        // Create the folder
+        // Create the output folder
         Directory.CreateDirectory outputFolder |> ignore
 
         // Backup each database
@@ -116,11 +120,14 @@ let upload () =
 
     let backupName = sprintf "%s-%s" System.Environment.MachineName outputDate
 
-    sprintf "Uploading folder %s as archive %s." outputFolder backupName
+    sprintf "Uploading files in folder %s as archive %s." outputFolder backupName
     |> log
 
-    //  Tarsnap uses diffing to cache files that have already been uploaded, so upload size won't matter.
-    let args = sprintf "-c -f %s %s" backupName outputFolder
+    // Tarsnap uses diffing to cache files that have already been uploaded, so upload size won't matter.
+    // -C changes the directory to the given folder. In our case this puts the files at the top level of the archive (we don't need older files in the dumps dir because tarsnap already has them archived.)
+    // -c creates an archive
+    // -f names the archive
+    let args = sprintf "-C %s -c -f %s ./" outputFolder backupName
 
     // Run tarsnap
     run tarsnap args __SOURCE_DIRECTORY__
