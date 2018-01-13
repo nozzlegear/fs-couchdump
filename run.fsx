@@ -84,19 +84,13 @@ Target "List" (fun _ ->
 let tarsnap = platformTool "tarsnap" "tarsnap.exe"
 
 Target "Upload" (fun _ ->
-    let keyfile =
-        match System.Environment.GetEnvironmentVariable "TARSNAP_KEYFILE" with
-        | ""
-        | null -> nullArg "Environment variable TARSNAP_KEYFILE was not found." |> raise
-        | s -> s
-
     let backupName =
         DateTime.UtcNow.ToString "o"
         |> sprintf "%s-%s" System.Environment.MachineName
 
     printfn "Archiving backup folder %s as backup %s. Tarsnap uses diffing to cache files that have already been uploaded, so upload size won't matter." outputFolder backupName
 
-    let args = sprintf "-c --keyfile %s -f %s %s" keyfile backupName outputFolder
+    let args = sprintf "-c -f %s %s" backupName outputFolder
 
     // Run tarsnap
     run tarsnap args __SOURCE_DIRECTORY__
