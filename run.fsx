@@ -87,8 +87,7 @@ let tarsnap = platformTool "tarsnap" "tarsnap.exe"
 
 Target "Upload" (fun _ ->
     let backupName =
-        DateTime.UtcNow.ToString "o"
-        |> sprintf "%s-%s" System.Environment.MachineName
+        sprintf "%s-%s" System.Environment.MachineName date
 
     printfn "Archiving backup folder %s as backup %s. Tarsnap uses diffing to cache files that have already been uploaded, so upload size won't matter." outputFolder backupName
 
