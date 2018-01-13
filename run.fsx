@@ -13,13 +13,17 @@ let dumpDir = "./dumps/" |> FullName
 let script = "./vendor/couchdb-backup.sh" |> FullName
 
 // From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
-let run' timeout cmd args dir =
-    if execProcess (fun info ->
+let run' (timeout: TimeSpan) cmd args dir =
+    let configureProcess (info: Diagnostics.ProcessStartInfo) =
+        info.RedirectStandardOutput <- true
         info.FileName <- cmd
         if not (String.IsNullOrWhiteSpace dir) then
             info.WorkingDirectory <- dir
         info.Arguments <- args
-    ) timeout |> not then
+
+    let success, _ = ExecProcessRedirected configureProcess timeout
+
+    if not success then
         failwithf "Error while running '%s' with args: %s" cmd args
 
 // From SAFE stack: https://github.com/SAFE-Stack/SAFE-BookStore/blob/master/build.fsx
