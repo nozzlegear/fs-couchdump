@@ -42,7 +42,7 @@ let listDatabases () = async {
 
     return
         deserialize<string list> json
-        |> List.filter (fun db -> db.IndexOf "_" = 0) // Filter out global databases which start with _
+        |> List.filter (fun db -> db.IndexOf "_" <> 0) // Filter out global databases which start with _
 }
 
 let date = System.DateTime.UtcNow.ToString("yyyy-MM-dd.HH:mm:ss")
