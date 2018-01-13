@@ -43,7 +43,7 @@ let listDatabases () = async {
     return deserialize<string list> json
 }
 
-let date = System.DateTime.Now.ToString("yyyy-MM-dd.HH:mm:ss")
+let date = System.DateTime.UtcNow.ToString("yyyy-MM-dd.HH:mm:ss")
 let zipFilename = dumpDir </> sprintf "%s.zip" date |> FullName
 let outputFolder = dumpDir </> date |> FullName
 let bash = platformTool "bash" "bash.exe"
