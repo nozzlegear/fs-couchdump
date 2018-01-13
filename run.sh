@@ -27,5 +27,5 @@ run() {
   fi
 }
 
-run $PAKET_EXE restore
+run $PAKET_EXE restore --silent
 run $FAKE_EXE "$@" $FSIARGS $FSIARGS2 run.fsx

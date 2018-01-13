@@ -96,8 +96,3 @@ bash vendor/couchdb-backup.sh -r -H 127.0.0.1 -d my-db -f dumpedDB.json
 ```
 
 Refer to the documentation for `couchdb-backup.sh` at [https://github.com/danielebailo/couchdb-dump](https://github.com/danielebailo/couchdb-dump).
-
-# TODO
-
-- [ ] Remove FAKE which is way too chatty, and unnecessary besides.
-- [ ] Add an option to suppress output of `couchdb-backup.sh` unless it throws an error.
