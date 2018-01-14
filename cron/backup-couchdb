@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-0 10 * * * root ./etc/fs-couchdump/run.sh upload >> /var/log/backup-couchdb.log 2>&1
+0 10 * * * root bash /etc/fs-couchdump/run.sh upload >> /var/log/backup-couchdb.log 2>&1
 
 # Place this file under /etc/cron.d, and place run.fsx under /etc/fs-couchdump. Logs will be available at /var/log/backup-couchdb.log.
 # Be sure that the Tarsnap configuration file at /etc/tarsnap.conf points to your tarsnap keyfile. For more secure usage, try creating a
